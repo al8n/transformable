@@ -1,15 +1,15 @@
 #![doc = include_str!("../README.md")]
 #![deny(missing_docs, warnings)]
 #![forbid(unsafe_code)]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(feature = "std", test)), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![cfg_attr(docsrs, allow(unused_attributes))]
 
-#[cfg(any(feature = "std", test))]
-extern crate std;
-
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
 extern crate alloc as std;
+
+#[cfg(feature = "std")]
+extern crate std;
 
 macro_rules! test_transformable {
   ($ty: ty => $test_fn:ident($init: expr)) => {

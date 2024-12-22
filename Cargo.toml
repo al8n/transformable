@@ -14,7 +14,7 @@ categories = ["development-tools", "no-std"]
 [features]
 default = ["std"]
 alloc = []
-std = ["alloc", "byteorder/default"]
+std = ["byteorder/default"]
 async = ["futures-util", "std"]
 
 
