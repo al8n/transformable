@@ -1,6 +1,6 @@
 use super::*;
 
-impl Transformable for Vec<u8> {
+impl Transformable for ::std::vec::Vec<u8> {
   type Error = BytesTransformError;
 
   fn encode(&self, dst: &mut [u8]) -> Result<usize, Self::Error> {
@@ -15,7 +15,6 @@ impl Transformable for Vec<u8> {
   /// it is better to use a [`BufWriter`](std::io::BufWriter)
   /// to wrap your orginal writer to cut down the number of I/O times.
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn encode_to_writer<W: std::io::Write>(&self, dst: &mut W) -> std::io::Result<usize> {
     encode_bytes_to(self.as_ref(), dst)
   }
@@ -28,7 +27,6 @@ impl Transformable for Vec<u8> {
   /// it is better to use a [`BufWriter`](futures_util::io::BufWriter)
   /// to wrap your orginal writer to cut down the number of I/O times.
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
     &self,
     dst: &mut W,
@@ -55,7 +53,6 @@ impl Transformable for Vec<u8> {
   /// it is better to use a [`BufReader`](std::io::BufReader)
   /// to wrap your orginal reader to cut down the number of I/O times.
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn decode_from_reader<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, Self)>
   where
     Self: Sized,
@@ -71,7 +68,6 @@ impl Transformable for Vec<u8> {
   /// it is better to use a [`BufReader`](futures_util::io::BufReader)
   /// to wrap your orginal reader to cut down the number of I/O times.
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
     src: &mut R,
   ) -> std::io::Result<(usize, Self)>

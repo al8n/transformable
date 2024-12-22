@@ -6,25 +6,18 @@ use super::Transformable;
 use crate::utils::invalid_data;
 
 /// The wire error type for [`IpAddr`].
-#[derive(Debug)]
-#[cfg_attr(feature = "std", derive(thiserror::Error))]
+#[derive(Debug, thiserror::Error)]
 pub enum IpAddrTransformError {
   /// Returned when the buffer is too small to encode the [`IpAddr`].
-  #[cfg_attr(
-    feature = "std",
-    error(
-      "buffer is too small, use `IpAddr::encoded_len` to pre-allocate a buffer with enough space"
-    )
+  #[error(
+    "buffer is too small, use `IpAddr::encoded_len` to pre-allocate a buffer with enough space"
   )]
   EncodeBufferTooSmall,
   /// Returned when the address family is unknown.
-  #[cfg_attr(
-    feature = "std",
-    error("invalid address family: {0}, only IPv4 and IPv6 are supported")
-  )]
+  #[error("invalid address family: {0}, only IPv4 and IPv6 are supported")]
   UnknownAddressFamily(u8),
   /// Returned when the address is corrupted.
-  #[cfg_attr(feature = "std", error("{0}"))]
+  #[error("{0}")]
   NotEnoughBytes(&'static str),
 }
 

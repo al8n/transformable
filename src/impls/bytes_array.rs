@@ -13,13 +13,11 @@ impl<const N: usize> Transformable for [u8; N] {
   }
 
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn encode_to_writer<W: std::io::Write>(&self, dst: &mut W) -> std::io::Result<usize> {
     dst.write_all(self).map(|_| N)
   }
 
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
     &self,
     dst: &mut W,
@@ -49,7 +47,6 @@ impl<const N: usize> Transformable for [u8; N] {
   }
 
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn decode_from_reader<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, Self)>
   where
     Self: Sized,
@@ -59,7 +56,6 @@ impl<const N: usize> Transformable for [u8; N] {
   }
 
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
     src: &mut R,
   ) -> std::io::Result<(usize, Self)>

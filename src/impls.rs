@@ -22,8 +22,8 @@ pub use time::*;
 mod numbers;
 pub use numbers::*;
 
-#[cfg(feature = "smallvec")]
-mod smallvec;
+#[cfg(feature = "smallvec1")]
+mod smallvec1;
 
 mod bytes_array;
 
@@ -80,30 +80,16 @@ impl ToNetworkEndian for i8 {
 impl_network_endian!(u16, u32, u64, u128, i16, i32, i64, i128,);
 
 /// The error type for errors that get returned when encoding or decoding fails.
-#[derive(Debug)]
-#[cfg_attr(feature = "std", derive(thiserror::Error))]
+#[derive(Debug, thiserror::Error)]
 pub enum BytesTransformError {
   /// Returned when the buffer is too small to encode.
-  #[cfg_attr(feature = "std", error(
+  #[error(
     "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-  ))]
+  )]
   EncodeBufferTooSmall,
   /// Returned when the bytes are corrupted.
-  #[cfg_attr(feature = "std", error("not enough bytes to decode"))]
+  #[error("not enough bytes to decode")]
   NotEnoughBytes,
-}
-
-#[cfg(not(feature = "std"))]
-impl core::fmt::Display for BytesTransformError {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    match self {
-      Self::EncodeBufferTooSmall => write!(
-        f,
-        "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-      ),
-      Self::NotEnoughBytes => write!(f, "not enough bytes to decode"),
-    }
-  }
 }
 
 #[cfg(all(feature = "std", feature = "async"))]
@@ -134,7 +120,7 @@ fn decode_bytes_from<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, V
 }
 
 #[cfg(any(feature = "alloc", feature = "std"))]
-fn decode_bytes(src: &[u8]) -> Result<(usize, Vec<u8>), ()> {
+fn decode_bytes(src: &[u8]) -> Result<(usize, ::std::vec::Vec<u8>), ()> {
   let len = src.len();
   if len < MESSAGE_SIZE_LEN {
     return Err(());

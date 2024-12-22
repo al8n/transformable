@@ -6,22 +6,18 @@ use super::Transformable;
 use crate::utils::invalid_data;
 
 /// The wire error type for [`SocketAddr`].
-#[derive(Debug)]
-#[cfg_attr(feature = "std", derive(thiserror::Error))]
+#[derive(Debug, thiserror::Error)]
 pub enum SocketAddrTransformError {
   /// Returned when the buffer is too small to encode the [`SocketAddr`].
-  #[cfg_attr(feature = "std", error(
+  #[error(
     "buffer is too small, use `SocketAddr::encoded_len` to pre-allocate a buffer with enough space"
-  ))]
+  )]
   EncodeBufferTooSmall,
   /// Returned when the address family is unknown.
-  #[cfg_attr(
-    feature = "std",
-    error("invalid address family: {0}, only IPv4 and IPv6 are supported")
-  )]
+  #[error("invalid address family: {0}, only IPv4 and IPv6 are supported")]
   UnknownAddressFamily(u8),
   /// Returned when the address is corrupted.
-  #[cfg_attr(feature = "std", error("not enough bytes to decode"))]
+  #[error("not enough bytes to decode")]
   NotEnoughBytes,
 }
 
@@ -59,7 +55,6 @@ impl Transformable for SocketAddr {
   }
 
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn encode_to_writer<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<usize> {
     match self {
       SocketAddr::V4(addr) => {
@@ -80,7 +75,6 @@ impl Transformable for SocketAddr {
   }
 
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
     &self,
     writer: &mut W,
@@ -142,7 +136,6 @@ impl Transformable for SocketAddr {
   }
 
   #[cfg(feature = "std")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
   fn decode_from_reader<R: std::io::Read>(reader: &mut R) -> std::io::Result<(usize, Self)>
   where
     Self: Sized,
@@ -178,7 +171,6 @@ impl Transformable for SocketAddr {
   }
 
   #[cfg(feature = "async")]
-  #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
   async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
     reader: &mut R,
   ) -> std::io::Result<(usize, Self)>
