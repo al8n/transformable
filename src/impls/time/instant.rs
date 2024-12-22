@@ -29,8 +29,7 @@ impl core::fmt::Display for InstantTransformError {
   }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for InstantTransformError {}
+impl core::error::Error for InstantTransformError {}
 
 impl Transformable for Instant {
   type Error = InstantTransformError;

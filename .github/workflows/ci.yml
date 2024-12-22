@@ -17,6 +17,8 @@ on:
       - 'LICENSE-*'
       - '**.md'
       - '**.txt'
+  workflow_dispatch:
+  schedule: [cron: "40 1 * * *"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -37,7 +39,7 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Rust
       # --no-self-update is necessary because the windows environment cannot self-update rustup.exe.
       run: rustup update stable --no-self-update && rustup default stable
@@ -56,7 +58,7 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Rust
       # --no-self-update is necessary because the windows environment cannot self-update rustup.exe.
       run: rustup update --no-self-update && rustup default nightly && rustup component add clippy
@@ -64,6 +66,47 @@ jobs:
       run: cargo install cargo-hack
     - name: Apply clippy lints
       run: cargo hack clippy --each-feature 
+
+  cross:
+    name: cross
+    strategy:
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+          - aarch64-linux-android
+          - aarch64-unknown-linux-musl
+          - i686-linux-android
+          - x86_64-linux-android
+          - i686-pc-windows-gnu
+          - x86_64-pc-windows-gnu
+          - i686-unknown-linux-gnu
+          - powerpc64-unknown-linux-gnu
+          # - mips64-unknown-linux-gnuabi64
+          - riscv64gc-unknown-linux-gnu
+          - wasm32-unknown-unknown
+          - wasm32-unknown-emscripten
+          - wasm32-wasip1
+          - wasm32-wasip1-threads
+          - wasm32-wasip2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache cargo build and registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cross-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cross-
+      - name: Install Rust
+        run: rustup update stable && rustup default stable
+      - name: cargo build --target ${{ matrix.target }}
+        run: |
+          rustup target add ${{ matrix.target }}
+          cargo build --target ${{ matrix.target }} 
 
   build:
     name: build
@@ -75,9 +118,9 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache cargo build and registry
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -92,7 +135,7 @@ jobs:
     - name: Install cargo-hack
       run: cargo install cargo-hack
     - name: Cache ~/.cargo
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cargo
         key: ${{ runner.os }}-coverage-dotcargo
@@ -109,9 +152,9 @@ jobs:
           - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Cache cargo build and registry
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -126,7 +169,7 @@ jobs:
     - name: Install cargo-hack
       run: cargo install cargo-hack
     - name: Cache ~/.cargo
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cargo
         key: ${{ runner.os }}-coverage-dotcargo
@@ -137,9 +180,9 @@ jobs:
     name: docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache cargo build and registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -164,11 +207,12 @@ jobs:
     needs:
       - rustfmt
       - clippy
+      - cross
       - build
       - test
       - docs
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
         with:
@@ -179,12 +223,12 @@ jobs:
           crate: cargo-tarpaulin
           version: latest
       - name: Cache ~/.cargo
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cargo
           key: ${{ runner.os }}-coverage-dotcargo
       - name: Cache cargo build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: target
           key: ${{ runner.os }}-coverage-cargo-build-target
@@ -194,7 +238,8 @@ jobs:
           command: tarpaulin
           args: --all-features --run-types tests --run-types doctests --workspace --out xml
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3.1.1
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ${{ github.repository }}
           fail_ci_if_error: true

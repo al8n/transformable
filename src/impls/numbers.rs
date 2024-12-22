@@ -18,8 +18,7 @@ impl core::fmt::Display for NumberTransformError {
   }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for NumberTransformError {}
+impl core::error::Error for NumberTransformError {}
 
 macro_rules! impl_number_based_id {
   ($($ty: ty), + $(,)?) => {
@@ -41,13 +40,11 @@ macro_rules! impl_number_based_id {
         }
 
         #[cfg(feature = "std")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
         fn encode_to_writer<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<usize> {
           writer.write_all(self.to_network_endian().as_ref()).map(|_| core::mem::size_of::<$ty>())
         }
 
         #[cfg(feature = "async")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
         async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
           &self,
           writer: &mut W,
@@ -73,7 +70,6 @@ macro_rules! impl_number_based_id {
         }
 
         #[cfg(feature = "std")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
         fn decode_from_reader<R: std::io::Read>(reader: &mut R) -> std::io::Result<(usize, Self)> where Self: Sized {
           const SIZE: usize = core::mem::size_of::<$ty>();
 
@@ -84,7 +80,6 @@ macro_rules! impl_number_based_id {
         }
 
         #[cfg(feature = "async")]
-        #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
         async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
           reader: &mut R,
         ) -> std::io::Result<(usize, Self)>
