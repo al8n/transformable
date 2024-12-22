@@ -65,3 +65,9 @@ macro_rules! impl_bytes {
 impl_bytes!(::bytes1::Bytes => test_bytes_transformable(::bytes1::Bytes::from_static(b"hello world")));
 impl_bytes!(Box<[u8]> => test_box_u8_transformable(Box::from(b"hello world".to_vec())));
 impl_bytes!(Arc<[u8]> => test_arc_u8_transformable(Arc::from(b"hello world".to_vec())));
+
+#[cfg(feature = "triomphe01")]
+use ::triomphe01::Arc as TriompheArc;
+
+#[cfg(feature = "triomphe01")]
+impl_bytes!(TriompheArc<[u8]> => test_triomphe_arc_u8_transformable(TriompheArc::from(b"hello world".to_vec())));

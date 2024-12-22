@@ -110,3 +110,9 @@ impl_string!(smol_str02::SmolStr => test_smol_str02_transformable(smol_str02::Sm
 impl_string!(Box<str> => test_box_str_transformable(Box::from("hello world")));
 
 impl_string!(Arc<str> => test_arc_str_transformable(Arc::from("hello world")));
+
+#[cfg(feature = "triomphe01")]
+use ::triomphe01::Arc as TriompheArc;
+
+#[cfg(feature = "triomphe01")]
+impl_string!(TriompheArc<str> => test_triomphe_arc_u8_transformable(TriompheArc::from("hello world")));

@@ -29,6 +29,7 @@ bytes1 = { package = "bytes", version = "1", optional = true }
 smol_str03 = { package = "smol_str", version = "0.3", optional = true }
 smol_str02 = { package = "smol_str", version = "0.2", optional = true }
 smallvec1 = { package = "smallvec", version = "1", default-features = false, optional = true, features = ["const_generics", "const_new", "union"] }
+triomphe01 = { package = "triomphe", version = "0.1", optional = true, default-features = false }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
