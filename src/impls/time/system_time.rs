@@ -26,8 +26,7 @@ impl core::fmt::Display for SystemTimeTransformError {
   }
 }
 
-#[cfg(feature = "std")]
-impl std::error::Error for SystemTimeTransformError {}
+impl core::error::Error for SystemTimeTransformError {}
 
 impl Transformable for SystemTime {
   type Error = SystemTimeTransformError;

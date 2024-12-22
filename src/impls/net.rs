@@ -12,30 +12,16 @@ const ADDR_V6_ENCODED_SIZE: usize = 16;
 const PORT_SIZE: usize = 2;
 
 /// The error type for errors that get returned when encoding or decoding fails.
-#[derive(Debug)]
-#[cfg_attr(feature = "std", derive(thiserror::Error))]
+#[derive(Debug, thiserror::Error)]
 pub enum AddrTransformError {
   /// Returned when the buffer is too small to encode.
-  #[cfg_attr(feature = "std", error(
+  #[error(
     "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-  ))]
+  )]
   EncodeBufferTooSmall,
   /// Returned when the bytes are corrupted.
-  #[cfg_attr(feature = "std", error("not enough bytes to decode"))]
+  #[error("not enough bytes to decode")]
   NotEnoughBytes,
-}
-
-#[cfg(not(feature = "std"))]
-impl core::fmt::Display for AddrTransformError {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    match self {
-      Self::EncodeBufferTooSmall => write!(
-        f,
-        "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-      ),
-      Self::NotEnoughBytes => write!(f, "not enough bytes to decode"),
-    }
-  }
 }
 
 impl AddrTransformError {
@@ -64,7 +50,6 @@ macro_rules! impl_socket_addr {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn encode_to_writer<W: std::io::Write>(&self, writer: &mut W) -> std::io::Result<usize> {
         let mut buf = [0u8; $addr_size + PORT_SIZE];
         buf[..$addr_size].copy_from_slice(&self.ip().octets());
@@ -73,7 +58,6 @@ macro_rules! impl_socket_addr {
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
         &self,
         writer: &mut W,
@@ -108,7 +92,6 @@ macro_rules! impl_socket_addr {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn decode_from_reader<R: std::io::Read>(reader: &mut R) -> std::io::Result<(usize, Self)>
       where
         Self: Sized,
@@ -124,7 +107,6 @@ macro_rules! impl_socket_addr {
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
         reader: &mut R,
       ) -> std::io::Result<(usize, Self)>
@@ -181,13 +163,11 @@ macro_rules! impl_addr {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn encode_to_writer<W: std::io::Write>(&self, dst: &mut W) -> std::io::Result<usize> {
         dst.write_all(&self.octets()).map(|_| $addr_size)
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
         &self,
         dst: &mut W,
@@ -211,7 +191,6 @@ macro_rules! impl_addr {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn decode_from_reader<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, Self)>
       where
         Self: Sized,
@@ -221,7 +200,6 @@ macro_rules! impl_addr {
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
         src: &mut R,
       ) -> std::io::Result<(usize, Self)>

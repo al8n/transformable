@@ -1,48 +1,26 @@
 use super::*;
 
 #[cfg(not(feature = "std"))]
-use ::alloc::{boxed::Box, string::String};
+use ::std::{boxed::Box, string::String};
 
-use ::alloc::sync::Arc;
+use ::std::sync::Arc;
 
 use core::borrow::Borrow;
 
 /// The error type for errors that get returned when encoding or decoding str based structs fails.
-#[derive(Debug)]
-#[cfg_attr(feature = "std", derive(thiserror::Error))]
+#[derive(Debug, thiserror::Error)]
 pub enum StringTransformError {
   /// Returned when the buffer is too small to encode.
-  #[cfg_attr(feature = "std", error(
+  #[error(
     "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-  ))]
+  )]
   EncodeBufferTooSmall,
   /// Returned when the decoding meet corruption.
-  #[cfg_attr(feature = "std", error("not enough bytes to decode"))]
+  #[error("not enough bytes to decode")]
   NotEnoughBytes,
   /// Returned when the decoding meet utf8 error.
-  #[cfg_attr(feature = "std", error("{0}"))]
-  Utf8Error(#[cfg_attr(feature = "std", from)] core::str::Utf8Error),
-}
-
-#[cfg(all(not(feature = "std"), feature = "alloc"))]
-impl core::convert::From<core::str::Utf8Error> for StringTransformError {
-  fn from(err: core::str::Utf8Error) -> Self {
-    Self::Utf8Error(err)
-  }
-}
-
-#[cfg(all(not(feature = "std"), feature = "alloc"))]
-impl core::fmt::Display for StringTransformError {
-  fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-    match self {
-      Self::EncodeBufferTooSmall => write!(
-        f,
-        "buffer is too small, use `Transformable::encoded_len` to pre-allocate a buffer with enough space"
-      ),
-      Self::NotEnoughBytes => write!(f, "not enough bytes to decode"),
-      Self::Utf8Error(val) => write!(f, "{val}"),
-    }
-  }
+  #[error(transparent)]
+  Utf8Error(#[from] core::str::Utf8Error),
 }
 
 macro_rules! impl_string {
@@ -56,14 +34,12 @@ macro_rules! impl_string {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn encode_to_writer<W: std::io::Write>(&self, dst: &mut W) -> std::io::Result<usize> {
         let src: &str = self.borrow();
         encode_bytes_to(src.as_bytes(), dst)
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
         &self,
         dst: &mut W,
@@ -91,7 +67,6 @@ macro_rules! impl_string {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn decode_from_reader<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, Self)>
       where
         Self: Sized,
@@ -104,7 +79,6 @@ macro_rules! impl_string {
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
         src: &mut R,
       ) -> std::io::Result<(usize, Self)>
@@ -127,8 +101,11 @@ macro_rules! impl_string {
 
 impl_string!(String => test_string_transformable(String::from("hello world")));
 
-#[cfg(feature = "smol_str")]
-impl_string!(smol_str::SmolStr => test_smol_str_transformable(smol_str::SmolStr::from("hello world")));
+#[cfg(feature = "smol_str03")]
+impl_string!(smol_str03::SmolStr => test_smol_str03_transformable(smol_str03::SmolStr::from("hello world")));
+
+#[cfg(feature = "smol_str02")]
+impl_string!(smol_str02::SmolStr => test_smol_str02_transformable(smol_str02::SmolStr::from("hello world")));
 
 impl_string!(Box<str> => test_box_str_transformable(Box::from("hello world")));
 

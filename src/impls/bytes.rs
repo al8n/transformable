@@ -1,7 +1,7 @@
 use super::*;
 #[cfg(not(feature = "std"))]
-use ::alloc::boxed::Box;
-use ::alloc::sync::Arc;
+use ::std::boxed::Box;
+use ::std::sync::Arc;
 
 macro_rules! impl_bytes {
   ($ty: ty => $test_fn:ident($init: expr)) => {
@@ -13,13 +13,11 @@ macro_rules! impl_bytes {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn encode_to_writer<W: std::io::Write>(&self, dst: &mut W) -> std::io::Result<usize> {
         encode_bytes_to(self.as_ref(), dst)
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn encode_to_async_writer<W: futures_util::io::AsyncWrite + Send + Unpin>(
         &self,
         dst: &mut W,
@@ -39,7 +37,6 @@ macro_rules! impl_bytes {
       }
 
       #[cfg(feature = "std")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
       fn decode_from_reader<R: std::io::Read>(src: &mut R) -> std::io::Result<(usize, Self)>
       where
         Self: Sized,
@@ -48,7 +45,6 @@ macro_rules! impl_bytes {
       }
 
       #[cfg(feature = "async")]
-      #[cfg_attr(docsrs, doc(cfg(feature = "async")))]
       async fn decode_from_async_reader<R: futures_util::io::AsyncRead + Send + Unpin>(
         src: &mut R,
       ) -> std::io::Result<(usize, Self)>
@@ -65,7 +61,7 @@ macro_rules! impl_bytes {
   };
 }
 
-#[cfg(feature = "bytes")]
-impl_bytes!(::bytes::Bytes => test_bytes_transformable(::bytes::Bytes::from_static(b"hello world")));
+#[cfg(feature = "bytes1")]
+impl_bytes!(::bytes1::Bytes => test_bytes_transformable(::bytes1::Bytes::from_static(b"hello world")));
 impl_bytes!(Box<[u8]> => test_box_u8_transformable(Box::from(b"hello world".to_vec())));
 impl_bytes!(Arc<[u8]> => test_arc_u8_transformable(Arc::from(b"hello world".to_vec())));
