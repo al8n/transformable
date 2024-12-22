@@ -88,7 +88,6 @@ jobs:
           - wasm32-wasip1
           - wasm32-wasip1-threads
           - wasm32-wasip2
-          - wasm32v1-none
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
