@@ -19,7 +19,7 @@ async = ["futures-util", "std"]
 
 [dependencies]
 byteorder = { version = "1", default-features = false }
-dbutils = { version = "0.12", default-features = false }
+dbutils = { version = "0.14", default-features = false }
 futures-util = { version = "0.3", optional = true, features = ["io"] }
 paste = "1"
 thiserror = { version = "2", default-features = false }
